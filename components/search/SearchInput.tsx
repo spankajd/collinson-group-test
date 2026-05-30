@@ -88,6 +88,7 @@ export function SearchComponent<T extends SearchResult>({
 
     setQuery(item.label);
     setShowDropdown(false);
+    setResults([]);
     onSelect(item);
   };
 
