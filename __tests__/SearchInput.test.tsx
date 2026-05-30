@@ -13,22 +13,34 @@ describe('SearchComponent', () => {
   });
 
   it('loads and displays suggestions after user input', async () => {
-    const fetchOptions = jest.fn(async (query: string) => [
-      { id: 1, label: 'Berlin' },
-      { id: 2, label: 'Berkeley' },
-    ]);
+    jest.useFakeTimers();
+    const user = userEvent.setup({
+    advanceTimers: jest.advanceTimersByTime,
+  });
 
-    const handleSelect = jest.fn();
+  const fetchOptions = jest.fn().mockResolvedValue([
+    { id: 1, label: "Berlin" },
+    { id: 2, label: "Berkeley" },
+  ]);
 
-    render(<SearchComponent fetchOptions={fetchOptions} onSelect={handleSelect} />);
-    const input = screen.getByPlaceholderText('Search...');
+  render(
+    <SearchComponent
+      fetchOptions={fetchOptions}
+      onSelect={jest.fn()}
+    />
+  );
 
-    await userEvent.type(input, 'Ber');
-    act(() => {
-      jest.advanceTimersByTime(400);
-    });
+  const input = screen.getByPlaceholderText("Search...");
 
-    expect(await screen.findByText('Berlin')).toBeInTheDocument();
-    expect(fetchOptions).toHaveBeenCalledWith('Ber');
+  await user.type(input, "Ber");
+
+  await act(async () => {
+    jest.runAllTimers();
+  });
+
+  expect(await screen.findByText("Berlin"))
+    .toBeInTheDocument();
+
+  expect(fetchOptions).toHaveBeenCalledWith("Ber");
   });
 });
