@@ -31,8 +31,16 @@ export function SearchComponent<T extends SearchResult>({
   const [showDropdown, setShowDropdown] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
+  const isSelectingRef = useRef(false);
+
 
   useEffect(() => {
+    
+    if (isSelectingRef.current) {
+        isSelectingRef.current = false;
+        return;
+    }
+
     if (query.length < minSearchLength) {
       setResults([]);
       setShowDropdown(false);
@@ -58,7 +66,7 @@ export function SearchComponent<T extends SearchResult>({
     }, debounceMs);
 
     return () => window.clearTimeout(timeout);
-  }, [query, debounceMs, minSearchLength, fetchOptions]);
+  }, [query]);
 
   useEffect(() => {
     setHighlightedIndex(results.length > 0 ? 0 : -1);
@@ -76,6 +84,8 @@ export function SearchComponent<T extends SearchResult>({
   }, []);
 
   const handleSelect = (item: T) => {
+    isSelectingRef.current = true;
+
     setQuery(item.label);
     setShowDropdown(false);
     onSelect(item);
